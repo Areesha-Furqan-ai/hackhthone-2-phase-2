@@ -45,6 +45,13 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
 
 The frontend is ready for deployment to platforms like Vercel, Netlify, or other hosting providers that support Next.js applications. Make sure to set the environment variables in your deployment platform.
 
+For Vercel deployment:
+1. Connect your GitHub repository to Vercel
+2. Set the environment variable `NEXT_PUBLIC_API_BASE_URL` to your backend URL
+3. Build command: `npm run build`
+4. Output directory: `.next`
+5. Install command: `npm install`
+
 ## Dependencies
 
 - react: UI library

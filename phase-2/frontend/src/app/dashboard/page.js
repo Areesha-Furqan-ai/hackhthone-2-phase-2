@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import api from '../../services/api';
+const { todoAPI } = api;
 
 export default function Dashboard() {
   const [todos, setTodos] = useState([]);
@@ -31,22 +33,13 @@ export default function Dashboard() {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/todos`, {
+        const data = await todoAPI.getAll({}, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setTodos(data.todos);
-        } else if (response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          router.push('/login');
-        } else {
-          throw new Error('Failed to fetch todos');
-        }
+        setTodos(data.todos);
       } catch (err) {
         setError('Failed to load todos');
       } finally {
@@ -69,57 +62,39 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/todos`, {
-        method: 'POST',
+      const createdTodo = await todoAPI.create({
+        title: newTodo.title,
+        description: newTodo.description,
+        priority: 'medium'
+      }, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          title: newTodo.title,
-          description: newTodo.description,
-          priority: 'medium'
-        })
+        }
       });
 
-      if (response.ok) {
-        const createdTodo = await response.json();
-        setTodos([createdTodo, ...todos]);
-        setNewTodo({ title: '', description: '' });
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Failed to create todo');
-      }
+      setTodos([createdTodo, ...todos]);
+      setNewTodo({ title: '', description: '' });
     } catch (err) {
-      alert('An error occurred while creating the todo');
+      alert(err.message || 'Failed to create todo');
     }
   };
 
   const handleUpdateTodo = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/todos/${id}`, {
-        method: 'PUT',
+      const updatedTodo = await todoAPI.update(id, editingData, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(editingData)
+        }
       });
 
-      if (response.ok) {
-        const updatedTodo = await response.json();
-        setTodos(todos.map(todo =>
-          todo._id === id ? updatedTodo : todo
-        ));
-        setEditingTodo(null);
-        setEditingData({ title: '', description: '' });
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Failed to update todo');
-      }
+      setTodos(todos.map(todo =>
+        todo._id === id ? updatedTodo : todo
+      ));
+      setEditingTodo(null);
+      setEditingData({ title: '', description: '' });
     } catch (err) {
-      alert('An error occurred while updating the todo');
+      alert(err.message || 'Failed to update todo');
     }
   };
 
@@ -128,44 +103,32 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/todos/${id}`, {
-        method: 'DELETE',
+      await todoAPI.delete(id, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (response.ok) {
-        setTodos(todos.filter(todo => todo._id !== id));
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || 'Failed to delete todo');
-      }
+      setTodos(todos.filter(todo => todo._id !== id));
     } catch (err) {
-      alert('An error occurred while deleting the todo');
+      alert(err.message || 'Failed to delete todo');
     }
   };
 
   const handleStatusChange = async (id, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/todos/${id}`, {
-        method: 'PUT',
+      const updatedTodo = await todoAPI.update(id, { status: newStatus }, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
+        }
       });
 
-      if (response.ok) {
-        const updatedTodo = await response.json();
-        setTodos(todos.map(todo =>
-          todo._id === id ? updatedTodo : todo
-        ));
-      }
+      setTodos(todos.map(todo =>
+        todo._id === id ? updatedTodo : todo
+      ));
     } catch (err) {
-      alert('An error occurred while updating the todo status');
+      alert(err.message || 'Failed to update todo status');
     }
   };
 

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import api from '../../services/api';
+const { authAPI } = api;
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -27,29 +29,17 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const data = await authAPI.login(formData);
 
-      const data = await response.json();
+      // Store token and user info in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (response.ok) {
-        // Store token and user info in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        // Redirect to dashboard
-        router.push('/dashboard');
-        router.refresh();
-      } else {
-        setError(data.error || 'Login failed');
-      }
+      // Redirect to dashboard
+      router.push('/dashboard');
+      router.refresh();
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }

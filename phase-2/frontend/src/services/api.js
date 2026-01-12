@@ -1,6 +1,6 @@
 // API service for handling all backend requests
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000';
 
 // Helper function to get auth token
 const getAuthToken = () => {
@@ -37,12 +37,12 @@ const request = async (endpoint, options = {}) => {
 
 // Authentication API functions
 export const authAPI = {
-  register: (userData) => request('/auth/register', {
+  register: (userData) => request('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData),
   }),
 
-  login: (credentials) => request('/auth/login', {
+  login: (credentials) => request('/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(credentials),
   }),
@@ -52,22 +52,22 @@ export const authAPI = {
 export const todoAPI = {
   getAll: (params = {}) => {
     const queryParams = new URLSearchParams(params);
-    return request(`/todos?${queryParams.toString()}`);
+    return request(`/api/todos?${queryParams.toString()}`);
   },
 
-  getById: (id) => request(`/todos/${id}`),
+  getById: (id) => request(`/api/todos/${id}`),
 
-  create: (todoData) => request('/todos', {
+  create: (todoData) => request('/api/todos', {
     method: 'POST',
     body: JSON.stringify(todoData),
   }),
 
-  update: (id, todoData) => request(`/todos/${id}`, {
+  update: (id, todoData) => request(`/api/todos/${id}`, {
     method: 'PUT',
     body: JSON.stringify(todoData),
   }),
 
-  delete: (id) => request(`/todos/${id}`, {
+  delete: (id) => request(`/api/todos/${id}`, {
     method: 'DELETE',
   }),
 };
