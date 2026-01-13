@@ -91,7 +91,7 @@ class ApiClient {
   async login(credentials: { email: string; password: string }): Promise<{ token: string; user: any }> {
     // In a real integration, this would call Better Auth API directly
     // For now, we'll keep the existing implementation but note this needs to be updated
-    const response = await this.request('/auth/login', {
+    const response = await this.request<{ token: string; user: any }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -106,7 +106,7 @@ class ApiClient {
   async signup(userData: { email: string; password: string; name: string }): Promise<{ token: string; user: any }> {
     // In a real integration, this would call Better Auth API directly
     // For now, we'll keep the existing implementation but note this needs to be updated
-    const response = await this.request('/auth/signup', {
+    const response = await this.request<{ token: string; user: any }>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -124,25 +124,25 @@ class ApiClient {
 
   // Task methods - Updated to use backend API endpoints
   async getTasks(): Promise<{ tasks: any[] }> {
-    return this.request('/api/v1/tasks');
+    return this.request<{ tasks: any[] }>('/api/v1/tasks');
   }
 
   async createTask(taskData: Omit<any, 'id'>): Promise<any> {
-    return this.request('/api/v1/tasks', {
+    return this.request<any>('/api/v1/tasks', {
       method: 'POST',
       body: JSON.stringify(taskData),
     });
   }
 
   async updateTask(id: string, taskData: Partial<any>): Promise<any> {
-    return this.request(`/api/v1/tasks/${id}`, {
+    return this.request<any>(`/api/v1/tasks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
     });
   }
 
   async deleteTask(id: string): Promise<void> {
-    await this.request(`/api/v1/tasks/${id}`, {
+    await this.request<void>(`/api/v1/tasks/${id}`, {
       method: 'DELETE',
     });
   }
@@ -150,7 +150,7 @@ class ApiClient {
   async forgotPassword(email: string): Promise<{ message: string }> {
     // In a real integration, this would call Better Auth API directly
     // For now, we'll keep the existing implementation but note this needs to be updated
-    return this.request('/auth/forgot-password', {
+    return this.request<{ message: string }>('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });

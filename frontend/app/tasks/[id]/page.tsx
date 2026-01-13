@@ -7,13 +7,21 @@ import { useTask } from '@/contexts/TaskContext';
 import { formatDate } from '@/shared/utils/utils';
 
 export default function TaskDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const { tasks, loading, error } = useTask();
   const [task, setTask] = useState<any>(null);
 
+  // Redirect if id is not available
   useEffect(() => {
-    if (tasks.length > 0) {
+    if (!id) {
+      router.push('/dashboard');
+    }
+  }, [id, router]);
+
+  useEffect(() => {
+    if (id && tasks.length > 0) {
       const foundTask = tasks.find((t: any) => t.id === id);
       setTask(foundTask || null);
     }

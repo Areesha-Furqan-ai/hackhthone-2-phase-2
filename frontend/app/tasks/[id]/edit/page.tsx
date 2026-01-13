@@ -10,8 +10,15 @@ import TextAreaField from '@/components/forms/TextAreaField';
 const EditTaskPage: React.FC = () => {
   const router = useRouter();
   const params = useParams();
-  const taskId = params.id as string;
+  const taskId = params?.id as string;
   const { tasks, updateTask } = useTask();
+
+  // Redirect if taskId is not available
+  useEffect(() => {
+    if (!taskId) {
+      router.push('/dashboard');
+    }
+  }, [taskId, router]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -29,9 +36,12 @@ const EditTaskPage: React.FC = () => {
         setDescription(task.description || '');
         setDueDate(task.dueDate || '');
         setCompleted(task.completed);
+      } else {
+        // Handle case where task is not found
+        router.push('/dashboard'); // Redirect if task doesn't exist
       }
     }
-  }, [taskId, tasks]);
+  }, [taskId, tasks, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

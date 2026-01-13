@@ -1,0 +1,15 @@
+[Unit]
+Description=Phase II Todo Backend API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/path/to/backend
+EnvironmentFile=/path/to/backend/.env
+ExecStart=/path/to/backend/venv/bin/gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:5000 --timeout 120 --max-requests 1000 --max-requests-jitter 100
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
